@@ -18,4 +18,8 @@ import pandas as pd
 email = pd.read_csv('spam_ham_dataset.csv')
 
 # mostrar as primeiras cinco entradas do dataset
-print (email.head())
+# print (email.head())
+# obter uma descricao estatistica do dataset
+# print (email.describe())
+# mostrar o par (linhas, colunas) com os valores totais
+# print (email.shape)
