@@ -1,29 +1,42 @@
-"""
-Aprendizagem Automatica -- Projeto Final
+# DISCLAIMER
 
-M12816 - Cristiano Santos
-E10973 - Sara Martins
-"""
+# Aprendizagem Automatica -- Projeto Final
+# M12816 - Cristiano Miguel Abrantes Santos
+# E10973 - Sara Maria da Silva Martins
 
-""" BIBLIOTECAS """
+
+# BIBLIOTECAS
 
 import datatest
-import matplotlib as plt
-import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 import re
 import seaborn as sns
 import warnings
 from nltk.corpus import stopwords
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import confusion_matrix
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
 
-""" VARIAVEIS """
+
+# VARIAVEIS
 
 colunas = {'id', 'label', 'text', 'label_num'}
+# hinge - svm ;; log_loss - regressao logistica ;; perceptron - rede neuronal
+algoritmos = [
+    KNeighborsClassifier(),
+    MultinomialNB(alpha = 1),
+    SGDClassifier(alpha = 1, loss = 'hinge'),
+    SGDClassifier(alpha = 1, loss = 'log_loss'),
+    SGDClassifier(alpha = 1, loss = 'perceptron'),
+    ]
 
-""" FUNCOES """
+
+# FUNCOES
 
 # funcao que mostra caracteristicas relativas ao dataset
 # input: dataframe
@@ -121,18 +134,37 @@ def fatorizar_texto(x_treino, x_teste):
 # funcao para o plot da matriz de confusao
 # input: array, array
 # output: null
-def plot_matriz_confusao(y_teste, y_previsto):
+def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
     # declarar a matriz de confusao
     c = confusion_matrix(y_teste, y_previsto)
     labels = [0, 1]
 
     # representar a matriz de confusao num formato heatmap
-    print("-" * 40, "Matriz de Confusao", "-" * 40)
     plt.figure(figsize = (8, 6))
     sns.heatmap(c, annot = True, cmap = "YlGnBu", fmt = ".3f", xticklabels = labels, yticklabels = labels)
-    plt.xlabel('Classe Prevista')
-    plt.ylabel('Classe Original')
+    plt.title(algoritmo)
+    plt.xlabel("Classe Prevista")
+    plt.ylabel("Classe Original")
     plt.show()
+
+# funcao para o treino do dataset com varios algoritmos de aprendizagem: 
+# input: matrix(n_samples, n_features), array, matrix(n_samples, n_features), array
+# output: null
+def treino(texto_treino, y_treino, texto_teste, y_teste):
+    for a in algoritmos:
+        # guardar o nome do algoritmo para a precisa
+        nome = str(a).split("(")[0]
+        # efetuar o treino sobre o classificador
+        classificador = a.fit(texto_treino, y_treino)
+        # inicializar um classificador com calibracao de probabilidades com regressao logistica
+        classificador_calibrado = CalibratedClassifierCV(classificador)
+        classificador_calibrado.fit(texto_treino, y_treino)
+        # efetuar a previsao sobre os resultados treinados
+        y_previsto = classificador_calibrado.predict(texto_teste)
+        # imprimir a precisao do algoritmo
+        print("Precisao", nome, ": ", accuracy_score(y_teste, y_previsto))
+        # representar a matriz de confusao
+        plot_matriz_confusao(nome, y_teste, y_previsto)
 
 # inicializacao da execucao do codigo
 if __name__ == "__main__":
@@ -140,20 +172,4 @@ if __name__ == "__main__":
     # verificar_estatisticas(email)
     x_treino, x_teste, y_treino, y_teste = dividir_dataframe(email)
     texto_treino, texto_teste = fatorizar_texto(x_treino, x_teste)
-
-
-
-### IMPORTANTE --- PARA O RELATORIO
-# 1. Não se faz normalização de dados porque, como o texto é constituído por strings,
-# o facto de utilizar one-hot-encoding para tornar estas strings em valores numericos
-# iria implicar perda de dados e dados categoricos nao podem ser normalizados
-# 2. Como cada entrada string está desformatada, é necessário executar uma reformatação
-# do texto. Este seria outro problema de um dataset em português: esta reformatação não
-# poderia ser feita de forma tão linear e implicaria a troca manual de carateres
-# acentuados ou a total ausencia destes
-# 3. Documentação dos warnings: https://docs.python.org/3/library/warnings.html
-# 4. Documentação dos NLTK: https://pythonspot.com/nltk-stop-words/
-# 5. Deixa de ser burra e vai ver como se fazem for's outra vez
-# 6. TFIDF é extremamente importante. ver!!!
-# 6.1. min_dffloat or int, default=1 --- When building the vocabulary ignore terms that have a document frequency strictly lower than the given threshold. This value is also called cut-off in the literature. If float in range of [0.0, 1.0], the parameter represents a proportion of documents, integer absolute counts. This parameter is ignored if vocabulary is not None.
-# 6.2. max_featuresint, default=None --- If not None, build a vocabulary that only consider the top max_features ordered by term frequency across the corpus.
+    treino(texto_treino, y_treino, texto_teste, y_teste)
