@@ -53,12 +53,12 @@ def verificar_estatisticas(email):
 # input: dataframe
 # output: dataframe
 def reformatar(email):
-    # filtrar os avisos para que os de patern matching não sejam impressos
+    # filtrar os avisos para que os de pattern matching não sejam impressos
     warnings.filterwarnings("ignore")
 
     # carregar a funcao stopwords da biblioteca nltk
     palavras_stop = set(stopwords.words('english'))
-
+    
     # atravessar cada entrada do dataset para executar o pre-processamento do texto
     for indice, linha in email.iterrows():
         if type(linha['text']) is str:
@@ -79,6 +79,7 @@ def reformatar(email):
             # haver valores nulos na coluna de conteudo textual
             print ("Nao ha descricao textual para o indice ", indice, ".")
 
+    # retornar o dataframe com a reformatacao de texto
     return email
 
 # funcao que abre e valida o dataset
@@ -94,6 +95,7 @@ def preparar_dataframe():
     # uniformizar a formatacao das strings de texto
     email = reformatar(email)
 
+    # retornar o dataframe pronto para treino
     return email
 
 # funcao que divide o dataset em conjuntos de treino e teste
@@ -145,6 +147,8 @@ def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
     plt.title(algoritmo)
     plt.xlabel("Classe Prevista")
     plt.ylabel("Classe Original")
+
+    # mostrar a matriz de confusao
     plt.show()
 
 # funcao para o treino do dataset com varios algoritmos de aprendizagem: 
@@ -152,7 +156,7 @@ def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
 # output: null
 def treino(texto_treino, y_treino, texto_teste, y_teste):
     for a in algoritmos:
-        # guardar o nome do algoritmo para a precisa
+        # guardar o nome do algoritmo para a precisao
         nome = str(a).split("(")[0]
         # efetuar o treino sobre o classificador
         classificador = a.fit(texto_treino, y_treino)
