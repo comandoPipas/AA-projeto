@@ -25,14 +25,14 @@ from sklearn.neighbors import KNeighborsClassifier
 
 # VARIAVEIS
 
-colunas = {'id', 'label', 'text', 'label_num'}
+colunas = {"id", "label", "text", "label_num"}
 # hinge - svm ;; log_loss - regressao logistica ;; perceptron - rede neuronal
 algoritmos = [
     KNeighborsClassifier(),
-    MultinomialNB(alpha = 1),
-    SGDClassifier(alpha = 1, loss = 'hinge'),
-    SGDClassifier(alpha = 1, loss = 'log_loss'),
-    SGDClassifier(alpha = 1, loss = 'perceptron'),
+    MultinomialNB(),
+    SGDClassifier(alpha = 1, loss = "hinge"),
+    SGDClassifier(alpha = 1, loss = "log_loss"),
+    SGDClassifier(alpha = 1, loss = "perceptron"),
     ]
 
 
@@ -57,23 +57,23 @@ def reformatar(email):
     warnings.filterwarnings("ignore")
 
     # carregar a funcao stopwords da biblioteca nltk
-    palavras_stop = set(stopwords.words('english'))
+    palavras_stop = set(stopwords.words("english"))
     
     # atravessar cada entrada do dataset para executar o pre-processamento do texto
     for indice, linha in email.iterrows():
-        if type(linha['text']) is str:
+        if type(linha["text"]) is str:
             texto = ""
             # substituir cada caratere especial com espacos
-            linha['text'] = re.sub('[^a-zA-Z0-9\n]', ' ', linha['text'])
+            linha["text"] = re.sub("[^a-zA-Z0-9\n]", " ", linha["text"])
             # substituir espacos multiplos por um espaco unico
-            linha['text'] = re.sub('\s+', ' ', linha['text'])
+            linha["text"] = re.sub("\s+", " ", linha["text"])
             # converter todos os carateres para minusculos 
-            linha['text'] = linha['text'].lower()
-            for palavra in linha['text'].split():
+            linha["text"] = linha["text"].lower()
+            for palavra in linha["text"].split():
                 # se a palavra nao e uma stop word, entao e mantida
                 if not palavra in palavras_stop:
                     texto = texto + palavra + " "
-            email['text', indice] = texto
+            email["text", indice] = texto
         else:
             # o else e para programacao defensiva, para a eventualidade de
             # haver valores nulos na coluna de conteudo textual
@@ -87,7 +87,7 @@ def reformatar(email):
 # output: dataframe
 def preparar_dataframe():
     # abrir o csv com o dataset
-    email = pd.read_csv('spam_ham_dataset.csv')
+    email = pd.read_csv("spam_ham_dataset.csv")
 
     # verificar a validação do dataset
     datatest.validate(email.columns, colunas)
@@ -103,9 +103,9 @@ def preparar_dataframe():
 # output: array, array, array, array
 def dividir_dataframe(email):
     # escolher apenas as colunas de relevo para o problema
-    email_dataframe = pd.DataFrame({'text': email['text'], 'spam/ham': email['label_num']})
-    x = email_dataframe['text']
-    y = email_dataframe['spam/ham']
+    email_dataframe = pd.DataFrame({"text": email["text"], "spam/ham": email["label_num"]})
+    x = email_dataframe["text"]
+    y = email_dataframe["spam/ham"]
 
     # dividir os dados
     x_treino, x_teste, y_treino, y_teste = train_test_split(x, y, test_size = 0.3, stratify = y, random_state = 0)
