@@ -142,8 +142,8 @@ def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
     labels = [0, 1]
 
     # representar a matriz de confusao num formato heatmap
-    plt.figure(figsize = (8, 6))
-    sns.heatmap(c, annot = True, cmap = "YlGnBu", fmt = ".3f", xticklabels = labels, yticklabels = labels)
+    plt.figure(figsize = (5, 5))
+    sns.heatmap(c, annot = True, fmt = ".3f", linewidths = 0.5, square = True, xticklabels = labels, yticklabels = labels)
     plt.title(algoritmo)
     plt.xlabel("Classe Prevista")
     plt.ylabel("Classe Original")
@@ -155,9 +155,20 @@ def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
 # input: matrix(n_samples, n_features), array, matrix(n_samples, n_features), array
 # output: null
 def treino(texto_treino, y_treino, texto_teste, y_teste):
+    counter = 0
     for a in algoritmos:
+        if counter == 0:
+            nome = "KNeighborsClassifier"
+        elif counter == 1:
+            nome = "MultinomialNB"
+        elif counter == 2:
+            nome = "SGDClassifier - hinge"
+        elif counter == 3:
+            nome = "SGDClassifier - log_loss"
+        elif counter == 4:
+            nome = "SGDClassifier - perceptron"
         # guardar o nome do algoritmo para a precisao
-        nome = str(a).split("(")[0]
+        #nome = str(a).split("(")[0]
         # efetuar o treino sobre o classificador
         classificador = a.fit(texto_treino, y_treino)
         # inicializar um classificador com calibracao de probabilidades com regressao logistica
@@ -169,6 +180,7 @@ def treino(texto_treino, y_treino, texto_teste, y_teste):
         print("Precisao", nome, ": ", accuracy_score(y_teste, y_previsto))
         # representar a matriz de confusao
         plot_matriz_confusao(nome, y_teste, y_previsto)
+        counter = counter + 1
 
 # inicializacao da execucao do codigo
 if __name__ == "__main__":
