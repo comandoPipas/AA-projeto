@@ -157,18 +157,8 @@ def plot_matriz_confusao(algoritmo, y_teste, y_previsto):
 def treino(texto_treino, y_treino, texto_teste, y_teste):
     counter = 0
     for a in algoritmos:
-        if counter == 0:
-            nome = "KNeighborsClassifier"
-        elif counter == 1:
-            nome = "MultinomialNB"
-        elif counter == 2:
-            nome = "SGDClassifier - hinge"
-        elif counter == 3:
-            nome = "SGDClassifier - log_loss"
-        elif counter == 4:
-            nome = "SGDClassifier - perceptron"
         # guardar o nome do algoritmo para a precisao
-        #nome = str(a).split("(")[0]
+        nome = str(a).split("(")[0]
         # efetuar o treino sobre o classificador
         classificador = a.fit(texto_treino, y_treino)
         # inicializar um classificador com calibracao de probabilidades com regressao logistica
